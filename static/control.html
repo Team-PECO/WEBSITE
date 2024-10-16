@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로봇 수동 조작</title>
+    <link rel="stylesheet" href="styles/control.css">
+</head>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f6f6f6;
+    }
+    .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        height: 100%;
+    }
+    .header {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background-color: #fff;
+        box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+        text-align: center;
+        z-index: 10;
+    }
+    .title {
+        font-size: 2rem;
+        font-weight: bold;
+        margin: 10px;
+    }
+    .button-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 50px;
+    }
+    .row {
+        display: flex;
+        justify-content: center;
+    }
+    .button {
+        width: 30vw;
+        height: 30vw;
+        max-width: 250px;
+        max-height: 250px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #fff;
+        border-radius: 10px;
+        margin: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        cursor: pointer;
+    }
+    .button-text {
+        font-size: 36px;
+        color: black;
+    }
+    .map-button {
+        margin-top: 30px;
+        width: 100%;
+        max-width: 340px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 15px;
+        background-color: #6a5acd;
+        border-radius: 10px;
+        cursor: pointer;
+    }
+    .map-button-text {
+        color: white;
+        font-size: 18px;
+    }
+</style>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title" onclick="gotoHome()">로봇 수동 조작</div>
+        </div>
+        
+        <div class="button-container">
+            <div class="button" onclick="moveRobot('up')">
+                <span class="button-text">↑</span>
+            </div>
+            <div class="row">
+                <div class="button" onclick="moveRobot('left')">
+                    <span class="button-text">←</span>
+                </div>
+                <div class="button" onclick="moveRobot('right')">
+                    <span class="button-text">→</span>
+                </div>
+            </div>
+            <div class="button" onclick="moveRobot('down')">
+                <span class="button-text">↓</span>
+            </div>
+        </div>
+        
+        <div class="map-button" onclick="startMapping()">
+            <span class="map-button-text">맵핑</span>
+        </div>
+    </div>
+
+    <script>
+        // 서버에서 IP 주소를 읽어서 이동하는 함수
+        async function gotoHome() {
+            window.location.href = `/`;
+        }
+
+        // 방향에 따라 로봇을 움직이는 함수
+        async function moveRobot(direction) {
+            try {
+                const controlResponse = await fetch(`/${direction}`);
+                if (!controlResponse.ok) {
+                    throw new Error(`HTTP error! status: ${controlResponse.status}`);
+                }
+                const data = await controlResponse.json();
+                console.log(data);
+            } catch (error) {
+                console.error('There was a problem with the fetch operation:', error);
+            }
+        }
+
+        // 맵핑 시작 함수
+        async function startMapping() {
+            try {
+                const controlResponse = await fetch(`/mapping`);
+                if (!controlResponse.ok) {
+                    throw new Error(`HTTP error! status: ${controlResponse.status}`);
+                }
+                const data = await controlResponse.json();
+                console.log(data);
+            } catch (error) {
+                console.error('There was a problem with the fetch operation:', error);
+            }
+        }
+    </script>
+</body>
+</html>

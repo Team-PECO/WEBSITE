@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>층별 안내도</title>
+    <style>
+        div {
+            font-size: 2.2vw;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 100%;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+        .header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #fff;
+            box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+            text-align: center;
+            z-index: 10;
+        }
+        .title {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .arrow {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1.6rem;
+            height: 2rem;
+            cursor: pointer;
+        }
+        .floor-plan {
+            display: flex;
+            justify-content: center;
+            width: 95%;
+            height: 60%;
+            position: absolute;
+            top: 20%;
+            left: 2.5%;
+        }
+        .column {
+            display: flex;
+            flex-direction: column;
+        }
+        .left-column {
+            flex: 1;
+        }
+        .center-column {
+            flex: 1;
+        }
+        .right-column {
+            flex: 3;
+        }
+        .room {
+            border: 1px solid #000;
+            margin: 2px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 130%;
+            transition: background-color 0.3s;
+        }
+        
+        @media (max-width: 610px) {
+            .room {
+                font-size: 110%;
+            }
+        }
+        .room:hover {
+            background-color: #000;
+            color: white;
+        }
+        .flex1 { flex: 1; }
+        .flex2 { flex: 2; }
+        .flex3 { flex: 3; }
+        .flex5 { flex: 5; }
+        .flex-06 { flex: 0.6; }
+        .row {
+            display: flex;
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <!-- <img src="/api/placeholder/25/32" alt="뒤로가기" class="arrow" onclick="goBack()"> -->
+            <h1 onclick="goBack()" class="title">출발지를 선택해주세요</h1>
+            <h1 hidden onclick="goBack()" class="title arrive">도착지를 선택해주세요</h1>
+        </div>
+        <div class="floor-plan">
+            <div class="column left-column">
+                <div class="room flex3" onclick="selectRoom('기숙사 A동')">기숙사 A동</div>
+                <div class="row">
+                    <div class="room flex1" onclick="selectRoom('체육관')">체육관</div>
+                    <div class="room flex1" onclick="selectRoom('주차장')">주차장</div>
+                </div>
+            </div>
+            <div class="column center-column">
+                <div class="room flex1" onclick="selectRoom('기숙사 B동')">기숙사 B동</div>
+                <div class="room flex1" onclick="selectRoom('SRC관')">SRC관</div>
+            </div>
+            <div class="column right-column">
+                <div class="room flex-06" onclick="selectRoom('B실')">B실</div>
+                <div class="row flex2">
+                    <div class="room flex5" onclick="selectRoom('운동장')">운동장</div>
+                    <div class="room flex2" onclick="selectRoom('A실')">A실</div>
+                </div>
+                <div class="row flex1">
+                    <div class="column flex1">
+                        <div class="room flex1" onclick="selectRoom('창의관')">창의관</div>
+                    </div>
+                    <div class="room flex1" onclick="selectRoom('주차장')">주차장</div>
+                    <div class="column flex1">
+                        <div class="room flex1" onclick="selectRoom('경비실')">경비실</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function selectRoom(roomName) {
+            console.log(`${roomName} 선택됨`);
+            alert(`${roomName}을(를) 선택하셨습니다.`);
+            alert(document.querySelector('.title').hidden)
+            if (document.querySelector('.title').hidden) {
+                window.location.href = '/'
+            }
+            else {
+                document.querySelectorAll('.title').forEach((title, index) => {
+                    title.hidden = !title.hidden;
+                });
+            }
+        }
+
+        function goBack() {
+            console.log('뒤로가기');
+            window.location.href = 'http://127.0.0.1:8000/'
+        }
+    </script>
+</body>
+</html>
