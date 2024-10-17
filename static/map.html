@@ -3,155 +3,189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>층별 안내도</title>
+    <title>R2봇 제어센터 - 자율 주행 모드</title>
     <style>
-        div {
-            font-size: 2.2vw;
-        }
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            width: 100%;
-            height: 100vh;
-            box-sizing: border-box;
-        }
-        .header {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background-color: #fff;
-            box-shadow: 0 2px 3px rgba(0,0,0,0.1);
-            text-align: center;
-            z-index: 10;
-        }
-        .title {
-            font-size: 2rem;
-            font-weight: bold;
-        }
-        .arrow {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 1.6rem;
-            height: 2rem;
-            cursor: pointer;
-        }
-        .floor-plan {
-            display: flex;
-            justify-content: center;
-            width: 95%;
-            height: 60%;
-            position: absolute;
-            top: 20%;
-            left: 2.5%;
-        }
-        .column {
-            display: flex;
-            flex-direction: column;
-        }
-        .left-column {
-            flex: 1;
-        }
-        .center-column {
-            flex: 1;
-        }
-        .right-column {
-            flex: 3;
-        }
-        .room {
-            border: 1px solid #000;
-            margin: 2px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 130%;
-            transition: background-color 0.3s;
-        }
-        
-        @media (max-width: 610px) {
-            .room {
-                font-size: 110%;
-            }
-        }
-        .room:hover {
-            background-color: #000;
-            color: white;
-        }
-        .flex1 { flex: 1; }
-        .flex2 { flex: 2; }
-        .flex3 { flex: 3; }
-        .flex5 { flex: 5; }
-        .flex-06 { flex: 0.6; }
-        .row {
-            display: flex;
-            flex: 1;
-        }
+       /* Global styles */
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+/* Header styles */
+header {
+    background-color: #FFF;
+    color: #000;
+    padding: 1rem;
+    font-weight: 600;
+    text-align: center;
+    font-size: 1.5rem;
+    position: relative;
+}
+
+.back-button {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #000;
+    text-decoration: none;
+    font-size: 1.2rem;
+    font-weight: 900;
+
+}
+
+/* Main content styles */
+main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* Map container styles */
+.map-container {
+    position: relative;
+    width: 100%;
+    max-width: 1000px;
+    margin: 2rem auto;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+#school-map {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+#map-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.marker {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background-color: #e74c3c;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.3);
+    transition: all 0.3s ease;
+}
+
+/* Navigation controls styles */
+.navigation-controls {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.navigation-controls select {
+    width: 48%;
+    padding: 0.8rem;
+    border: 1px solid #bdc3c7;
+    border-radius: 4px;
+    background-color: #fff;
+    font-size: 1rem;
+    color: #34495e;
+    transition: border-color 0.3s ease;
+}
+
+.navigation-controls select:focus {
+    outline: none;
+    border-color: #3498db;
+}
+
+/* Button styles */
+.navigation-button {
+    display: block;
+    width: 100%;
+    padding: 1rem;
+    margin-top: 2rem;
+    background-color: #2ecc71;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.navigation-button:hover {
+    background-color: #27ae60;
+}
+
+.navigation-button:disabled {
+    background-color: #95a5a6;
+    cursor: not-allowed;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .navigation-controls {
+        flex-direction: column;
+    }
+    
+    .navigation-controls select {
+        width: 100%;
+    }
+}
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <!-- <img src="/api/placeholder/25/32" alt="뒤로가기" class="arrow" onclick="goBack()"> -->
-            <h1 onclick="goBack()" class="title">출발지를 선택해주세요</h1>
-            <h1 hidden onclick="goBack()" class="title arrive">도착지를 선택해주세요</h1>
-        </div>
-        <div class="floor-plan">
-            <div class="column left-column">
-                <div class="room flex3" onclick="selectRoom('기숙사 A동')">기숙사 A동</div>
-                <div class="row">
-                    <div class="room flex1" onclick="selectRoom('체육관')">체육관</div>
-                    <div class="room flex1" onclick="selectRoom('주차장')">주차장</div>
-                </div>
-            </div>
-            <div class="column center-column">
-                <div class="room flex1" onclick="selectRoom('기숙사 B동')">기숙사 B동</div>
-                <div class="room flex1" onclick="selectRoom('SRC관')">SRC관</div>
-            </div>
-            <div class="column right-column">
-                <div class="room flex-06" onclick="selectRoom('B실')">B실</div>
-                <div class="row flex2">
-                    <div class="room flex5" onclick="selectRoom('운동장')">운동장</div>
-                    <div class="room flex2" onclick="selectRoom('A실')">A실</div>
-                </div>
-                <div class="row flex1">
-                    <div class="column flex1">
-                        <div class="room flex1" onclick="selectRoom('창의관')">창의관</div>
-                    </div>
-                    <div class="room flex1" onclick="selectRoom('주차장')">주차장</div>
-                    <div class="column flex1">
-                        <div class="room flex1" onclick="selectRoom('경비실')">경비실</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <header>
+        <a href="/" class="back-button">←</a>
+        자율 주행 모드
+    </header>
 
-    <script>
-        function selectRoom(roomName) {
-            console.log(`${roomName} 선택됨`);
-            alert(`${roomName}을(를) 선택하셨습니다.`);
-            alert(document.querySelector('.title').hidden)
-            if (document.querySelector('.title').hidden) {
-                window.location.href = '/'
-            }
-            else {
-                document.querySelectorAll('.title').forEach((title, index) => {
-                    title.hidden = !title.hidden;
-                });
-            }
-        }
+    <main>
+        <div class="navigation-controls">
+            <select id="start-point">
+                <option value="">시작 지점 선택</option>
+                <option value="창의디자인실" data-coords="147,73">창의디자인실</option>
+                <option value="과학실">과학실</option>
+                <option value="보건실">보건실</option>
+                <option value="회의실">회의실</option>
+                <option value="교장실" data-coords="1272,323">교장실</option>
+                <option value="행정실">행정실</option>
+                <option value="1-1반">1-1반</option>
+                <option value="1-2반">1-2반</option>
+                <option value="1-3반">1-3반</option>
+                <option value="1-4반">1-4반</option>
+            </select>
 
-        function goBack() {
-            console.log('뒤로가기');
-            window.location.href = 'http://127.0.0.1:8000/'
-        }
-    </script>
+            <select id="end-point">
+                <option value="">도착 지점 선택</option>
+                <option value="창의디자인실" data-coords="147,73">창의디자인실</option>
+                <option value="과학실">과학실</option>
+                <option value="보건실">보건실</option>
+                <option value="회의실">회의실</option>
+                <option value="교장실" data-coords="1272,323">교장실</option>
+                <option value="행정실">행정실</option>
+                <option value="1-1반">1-1반</option>
+                <option value="1-2반">1-2반</option>
+                <option value="1-3반">1-3반</option>
+                <option value="1-4반">1-4반</option>
+            </select>
+        </div>
+
+        <!-- Map and Canvas for drawing the lines -->
+        <div class="map-container">
+            <img id="school-map" src="/static/assets/map2.png" alt="Map" class="map-display">
+            <canvas id="map-canvas"></canvas>
+        </div>
+
+        <button id="start-navigation" class="navigation-button" disabled>주행 시작</button>
+    </main>
 </body>
 </html>

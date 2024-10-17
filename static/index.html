@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PECO</title>
     <style>
-        body {
+         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
@@ -17,6 +17,7 @@
         .header {
             background-color: #fff;
             padding: 14px;
+            margin-bottom: 30px;
             box-shadow: 0 2px 3px rgba(0,0,0,0.1);
         }
         .title {
@@ -75,13 +76,157 @@
             height: 100%;
             
         }
+        #three-container {
+            width: 100%;
+            height: 60vh; /* 뷰포트 높이의 60%로 설정 */
+        }
     </style>
 </head>
-</head>
 <body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    
     <div class="container">
         <div class="header">
             <h1 class="title">PECO</h1>
+        </div>
+        <div class="map-container">
+            <div id="three-container"></div>
+            <script>
+        // Three.js 기본 설정
+        const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer();
+const container = document.getElementById('three-container');
+renderer.setClearColor(0xFFFFFF); 
+
+function updateRendererSize() {
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+    renderer.setSize(width, height);
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+}
+
+container.appendChild(renderer.domElement);
+updateRendererSize();
+
+// 조명 추가
+const light = new THREE.AmbientLight(0xffffff, 1);
+scene.add(light);
+
+const directionalLight = new THREE.DirectionalLight(0xffffff, .5);
+directionalLight.position.set(-.5, 1.3, -.2).normalize();
+scene.add(directionalLight);
+
+// GLTF 모델 로드
+const loader = new THREE.GLTFLoader();
+let model;
+loader.load('/static/assets/r2botv1.gltf', (gltf) => {
+    model = gltf.scene;
+    model.scale.set(0.05, 0.05, 0.05);
+    model.position.set(0, 0, 0);
+    
+    model.traverse((child) => {
+        if (child.isMesh) {
+            child.material = new THREE.MeshStandardMaterial({
+                metalness: 0.7,
+                roughness: 0.3,
+                color: 0xa1a1a1,
+            });
+        }
+    });
+
+    scene.add(model);
+}, undefined, (error) => {
+    console.error(error);
+});
+
+camera.position.set(0, 1, 5);
+
+let isDragging = false;
+let previousMousePosition = { x: 0, y: 0 };
+let rotationSpeedY = 0;
+let rotationSpeedX = 0;
+const damping = 0.95;
+const maxRotationSpeed = 0.1;
+
+// 전체 window에 이벤트 리스너 추가
+window.addEventListener('mousedown', startDragging);
+window.addEventListener('mousemove', drag);
+window.addEventListener('mouseup', stopDragging);
+
+// 터치 이벤트 추가
+window.addEventListener('touchstart', startDragging);
+window.addEventListener('touchmove', drag);
+window.addEventListener('touchend', stopDragging);
+
+function startDragging(event) {
+    isDragging = true;
+    rotationSpeedY = 0;
+    rotationSpeedX = 0;
+    updateMousePosition(event);
+}
+
+function drag(event) {
+    if (isDragging && model) {
+        const currentPosition = getEventPosition(event);
+        const deltaMove = {
+            x: currentPosition.x - previousMousePosition.x,
+            y: currentPosition.y - previousMousePosition.y
+        };
+        
+        rotationSpeedY += deltaMove.x * 0.01;
+        rotationSpeedY = Math.max(-maxRotationSpeed, Math.min(maxRotationSpeed, rotationSpeedY));
+
+        rotationSpeedX += deltaMove.y * 0.01;
+        rotationSpeedX = Math.max(-maxRotationSpeed, Math.min(maxRotationSpeed, rotationSpeedX));
+
+        updateMousePosition(event);
+    }
+}
+
+function stopDragging() {
+    isDragging = false;
+}
+
+function updateMousePosition(event) {
+    const position = getEventPosition(event);
+    previousMousePosition = {
+        x: position.x,
+        y: position.y
+    };
+}
+
+function getEventPosition(event) {
+    if (event.touches) {
+        return {
+            x: event.touches[0].clientX,
+            y: event.touches[0].clientY
+        };
+    }
+    return {
+        x: event.clientX,
+        y: event.clientY
+    };
+}
+
+const animate = function () {
+    requestAnimationFrame(animate);
+    if (model) {
+        model.rotation.x = 200;
+        model.rotation.z += rotationSpeedY;
+        rotationSpeedY *= damping;
+        rotationSpeedX *= damping;
+    }
+    renderer.render(scene, camera);
+};
+
+animate();
+
+window.addEventListener('resize', updateRendererSize);
+    </script>
+    
         </div>
         <div class="button-container">
             <a href="/control" class="button" id="manual-control">
@@ -98,10 +243,6 @@
                 </div>
                 <p class="button-subtitle">지도에 출발, 도착점을 정해 이동시킵니다</p>
             </a>
-        </div>
-        <div class="map-container">
-            <h2 class="section-title">현재 로봇 위치</h2>
-            <img src="../static/assets/mapview.png" alt="지도 뷰" class="map">
         </div>
     </div>
 </body>
