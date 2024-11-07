@@ -3,195 +3,534 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>R2봇 제어센터 - 자율 주행 모드</title>
+    <title>건물 길찾기</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-       /* Global styles */
-body {
-    font-family: 'Noto Sans KR', sans-serif;
-    line-height: 1.6;
-    color: #333;
-    background-color: #f4f4f4;
-    margin: 0;
-    padding: 0;
-}
-
-/* Header styles */
-header {
-    background-color: #FFF;
-    color: #000;
-    padding: 1rem;
-    font-weight: 600;
-    font-size: 1.5rem;
-    position: relative;
-    box-shadow: 0 2px 3px rgba(0,0,0,0.1);
-}
-.title {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin: 0;
-            text-decoration: none;
-            color:black;
+        .map-container {
+            position: relative;
+            overflow: hidden;
+            background: #f8fafc;
+            border-radius: 0.5rem;
+            touch-action: none;
         }
-.back-button {
-    position: absolute;
-    left: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #000;
-    text-decoration: none;
-    font-size: 1.2rem;
-    font-weight: 900;
-
-}
-
-/* Main content styles */
-main {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem;
-}
-
-/* Map container styles */
-.map-container {
-    position: relative;
-    width: 100%;
-    max-width: 1000px;
-    margin: 2rem auto;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-#school-map {
-    width: 100%;
-    height: auto;
-    display: block;
-}
-
-#map-canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-}
-
-.marker {
-    position: absolute;
-    width: 12px;
-    height: 12px;
-    background-color: #e74c3c;
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.3);
-    transition: all 0.3s ease;
-}
-
-/* Navigation controls styles */
-.navigation-controls {
-    margin-top: 2rem;
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-}
-
-.navigation-controls select {
-    width: 48%;
-    padding: 0.8rem;
-    border: 1px solid #bdc3c7;
-    border-radius: 4px;
-    background-color: #fff;
-    font-size: 1rem;
-    color: #34495e;
-    transition: border-color 0.3s ease;
-}
-
-.navigation-controls select:focus {
-    outline: none;
-    border-color: #3498db;
-}
-
-/* Button styles */
-.navigation-button {
-    display: block;
-    width: 100%;
-    padding: 1rem;
-    margin-top: 2rem;
-    background-color: #2ecc71;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 1.1rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.navigation-button:hover {
-    background-color: #27ae60;
-}
-
-.navigation-button:disabled {
-    background-color: #95a5a6;
-    cursor: not-allowed;
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-    .navigation-controls {
-        flex-direction: column;
-    }
-    
-    .navigation-controls select {
-        width: 100%;
-    }
-}
+        
+        .zoom-controls {
+            position: absolute;
+            left: 1rem;
+            bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            z-index: 10;
+        }
+        
+        .zoom-btn {
+            width: 2.5rem;
+            height: 2.5rem;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .zoom-btn:hover {
+            background: #f1f5f9;
+        }
     </style>
 </head>
-<body>
-    <header>
-        <!-- <a href="/" class="back-button">←</a> -->
-        <a href="/" class="title">이동 경로 지정</a>
-    </header>
-
-    <main>
-        <div class="navigation-controls">
-            <select id="start-point">
-                <option value="">시작 지점 선택</option>
-                <option value="창의디자인실" data-coords="147,73">창의디자인실</option>
-                <option value="과학실">과학실</option>
-                <option value="보건실">보건실</option>
-                <option value="회의실">회의실</option>
-                <option value="교장실" data-coords="1272,323">교장실</option>
-                <option value="행정실">행정실</option>
-                <option value="1-1반">1-1반</option>
-                <option value="1-2반">1-2반</option>
-                <option value="1-3반">1-3반</option>
-                <option value="1-4반">1-4반</option>
-            </select>
-
-            <select id="end-point">
-                <option value="">도착 지점 선택</option>
-                <option value="창의디자인실" data-coords="147,73">창의디자인실</option>
-                <option value="과학실">과학실</option>
-                <option value="보건실">보건실</option>
-                <option value="회의실">회의실</option>
-                <option value="교장실" data-coords="1272,323">교장실</option>
-                <option value="행정실">행정실</option>
-                <option value="1-1반">1-1반</option>
-                <option value="1-2반">1-2반</option>
-                <option value="1-3반">1-3반</option>
-                <option value="1-4반">1-4반</option>
-            </select>
+<body class="bg-slate-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl md:text-4xl font-bold text-center text-slate-800 mb-8">
+            건물 길찾기
+        </h1>
+        
+        <div class="max-w-5xl mx-auto bg-white rounded-2xl shadow-lg p-6">
+            <div class="flex flex-col gap-4 mb-6">
+                <div class="flex flex-row gap-4">
+                    <div class="flex-1">
+                        <label for="start-location" class="block text-sm font-medium text-slate-700 mb-2">출발지</label>
+                        <select id="start-location" class="w-full px-4 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </select>
+                    </div>
+                    <div class="flex-1">
+                        <label for="end-location" class="block text-sm font-medium text-slate-700 mb-2">도착지</label>
+                        <select id="end-location" class="w-full px-4 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </select>
+                    </div>
+                </div>
+                <div class="flex justify-center">
+                    <button id="find-path" class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-semibold">
+                        경로 찾기
+                    </button>
+                </div>
+            </div>
+            
+            <div class="map-container" style="height: 380px;">
+                <canvas id="mapCanvas"></canvas>
+                <div class="zoom-controls">
+                    <button class="zoom-btn" id="zoom-in">+</button>
+                    <button class="zoom-btn" id="zoom-out">-</button>
+                    <button class="zoom-btn" id="reset-zoom">↺</button>
+                </div>
+            </div>
         </div>
+    </div>
 
-        <!-- Map and Canvas for drawing the lines -->
-        <div class="map-container">
-            <img id="school-map" src="/static/assets/map2.png" alt="Map" class="map-display">
-            <canvas id="map-canvas"></canvas>
-        </div>
+    <script>
+        const ROOM_WIDTH = 120;
+        const ROOM_HEIGHT = 120;
+        const HORIZONTAL_GAP = 10;
+        const VERTICAL_GAP = 10;
 
-        <button id="start-navigation" class="navigation-button" disabled>주행 시작</button>
-    </main>
+        const locations = [
+            // 가로 방향
+            { id: '창의디자인실', name: '창의디자인실', x: 0, y: 100 },
+            { id: '과학실', name: '과학실', x: (ROOM_WIDTH + HORIZONTAL_GAP), y: 100 },
+            { id: '프로그래밍2실', name: '프로그래밍2실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 2, y: 100 },
+            { id: '인공지능개발실', name: '인공지능개발실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 3, y: 100 },
+            { id: '학생자치회실', name: '학생자치회', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 4, y: 100 },
+            { id: '학부모회실', name: '학부모회실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 5, y: 100 },
+            { id: '보건실', name: '보건실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 6, y: 100 },
+            { id: '중앙홀', name: '중앙홀', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 },
+            
+            // 세로 방향
+            { id: '기획회의실', name: '기획회의실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + ROOM_HEIGHT + VERTICAL_GAP },
+            { id: '교장실', name: '교장실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 2 },
+            { id: '행정지원실', name: '행정지원실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 3 },
+            { id: '학습지원실', name: '학습지원실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 4 },
+            { id: '1-1', name: '1-1', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 5 },
+            { id: '1-2', name: '1-2', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 6 },
+            { id: '1-3', name: '1-3', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 7 },
+            { id: '1-4', name: '1-4', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 8 }
+        ];
+
+        const paths = [
+            // 가로 방향 연결
+            ['창의디자인실', '과학실'],
+            ['과학실', '프로그래밍2실'],
+            ['프로그래밍2실', '인공지능개발실'],
+            ['인공지능개발실', '학생자치회실'],
+            ['학생자치회실', '학부모회실'],
+            ['학부모회실', '보건실'],
+            ['보건실', '중앙홀'],
+            
+            // 세로 방향 연결
+            ['중앙홀', '기획회의실'],
+            ['기획회의실', '교장실'],
+            ['교장실', '행정지원실'],
+            ['행정지원실', '학습지원실'],
+            ['학습지원실', '1-1'],
+            ['1-1', '1-2'],
+            ['1-2', '1-3'],
+            ['1-3', '1-4']
+        ];
+
+        class MapRenderer {
+            constructor(canvas) {
+                this.canvas = canvas;
+                this.ctx = canvas.getContext('2d');
+                this.scale = 1;
+                this.offsetX = 0;
+                this.offsetY = 0;
+                this.isDragging = false;
+                this.lastX = 0;
+                this.lastY = 0;
+                this.currentPath = [];
+                this.lastTouchDistance = 0;
+                
+                this.setupEventListeners();
+                this.resetView();
+            }
+
+            setupEventListeners() {
+                this.canvas.addEventListener('mousedown', this.startDrag.bind(this));
+                this.canvas.addEventListener('mousemove', this.drag.bind(this));
+                this.canvas.addEventListener('mouseup', this.endDrag.bind(this));
+                this.canvas.addEventListener('wheel', this.handleZoom.bind(this));
+                
+                this.canvas.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    if (e.touches.length === 2) {
+                        // Store initial pinch distance
+                        this.lastTouchDistance = this.getTouchDistance(e.touches);
+                    } else if (e.touches.length === 1) {
+                        const touch = e.touches[0];
+                        this.startDrag({ clientX: touch.clientX, clientY: touch.clientY });
+                    }
+                });
+                
+                this.canvas.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                    if (e.touches.length === 2) {
+                        // Handle pinch zoom
+                        const currentDistance = this.getTouchDistance(e.touches);
+                        const delta = currentDistance - this.lastTouchDistance;
+                        
+                        const rect = this.canvas.getBoundingClientRect();
+                        const centerX = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
+                        const centerY = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
+                        
+                        const zoomFactor = delta > 0 ? 1.02 : 0.98;
+                        
+                        this.handlePinchZoom(centerX, centerY, zoomFactor);
+                        
+                        this.lastTouchDistance = currentDistance;
+                    } else if (e.touches.length === 1) {
+                        const touch = e.touches[0];
+                        this.drag({ clientX: touch.clientX, clientY: touch.clientY });
+                    }
+                });
+                
+                this.canvas.addEventListener('touchend', (e) => {
+                    if (e.touches.length < 2) {
+                        this.lastTouchDistance = 0;
+                    }
+                    if (e.touches.length === 0) {
+                        this.endDrag();
+                    }
+                });
+            }
+
+            startDrag(e) {
+                this.isDragging = true;
+                this.lastX = e.clientX - this.canvas.offsetLeft;
+                this.lastY = e.clientY - this.canvas.offsetTop;
+            }
+
+            drag(e) {
+                if (!this.isDragging) return;
+                
+                const x = e.clientX - this.canvas.offsetLeft;
+                const y = e.clientY - this.canvas.offsetTop;
+                
+                this.offsetX += (x - this.lastX) / this.scale;
+                this.offsetY += (y - this.lastY) / this.scale;
+                
+                this.lastX = x;
+                this.lastY = y;
+                
+                this.render();
+            }
+
+            endDrag() {
+                this.isDragging = false;
+            }
+
+            handleZoom(e) {
+                e.preventDefault();
+                
+                const rect = this.canvas.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+                
+                // 줌 속도 조절
+                const zoomSensitivity = 0.001;
+                const zoomFactor = 1 + (-e.deltaY * zoomSensitivity);
+                
+                this.zoomToPoint(mouseX, mouseY, zoomFactor);
+            }
+
+            setZoom(zoomIn) {
+                const centerX = this.canvas.width / 2;
+                const centerY = this.canvas.height / 2;
+                
+                // 고정된 줌 비율 사용
+                const zoomFactor = zoomIn ? 1.1 : 0.9;
+                
+                this.zoomToPoint(centerX, centerY, zoomFactor);
+            }
+
+            resetView() {
+                const xs = locations.map(l => l.x);
+                const ys = locations.map(l => l.y);
+                const minX = Math.min(...xs);
+                const maxX = Math.max(...xs) + ROOM_WIDTH;
+                const minY = Math.min(...ys);
+                const maxY = Math.max(...ys) + ROOM_HEIGHT;
+                
+                const padding = 100;
+                const width = maxX - minX + padding * 2;
+                const height = maxY - minY + padding * 2;
+                
+                const scaleX = this.canvas.width / width;
+                const scaleY = this.canvas.height / height;
+                this.scale = Math.min(scaleX, scaleY);
+                
+                this.offsetX = -minX + padding;
+                this.offsetY = -minY + padding;
+                
+                this.render();
+            }
+
+            drawRoom(x, y, name, isHighlighted = false) {
+                this.ctx.beginPath();
+                this.ctx.roundRect(x, y, ROOM_WIDTH, ROOM_HEIGHT, 4);
+                
+                if (isHighlighted) {
+                    this.ctx.fillStyle = '#bfdbfe';
+                    this.ctx.strokeStyle = '#3b82f6';
+                } else {
+                    this.ctx.fillStyle = '#ffffff';
+                    this.ctx.strokeStyle = '#e2e8f0';
+                }
+                
+                this.ctx.lineWidth = 2;
+                this.ctx.fill();
+                this.ctx.stroke();
+
+                // Draw room name
+                this.ctx.fillStyle = '#1e293b';
+                this.ctx.font = 'bold 24px system-ui';
+                this.ctx.textAlign = 'center';
+                this.ctx.textBaseline = 'middle';
+                
+                // Text wrapping for long names
+                const words = name.split('');
+                let line = '';
+                let lines = [];
+                const maxWidth = ROOM_WIDTH - 10;
+                
+                for (let i = 0; i < words.length; i++) {
+                    const testLine = line + words[i];
+                    const metrics = this.ctx.measureText(testLine);
+                    
+                    if (metrics.width > maxWidth && i > 0) {
+                        lines.push(line);
+                        line = words[i];
+                    } else {
+                        line = testLine;
+                    }
+                }
+                lines.push(line);
+                
+                const lineHeight = 24;
+                const totalHeight = lines.length * lineHeight;
+                const startY = y + (ROOM_HEIGHT - totalHeight) / 2;
+                
+                lines.forEach((line, i) => {
+                    this.ctx.fillText(line, x + ROOM_WIDTH / 2, startY + i * lineHeight + lineHeight / 2);
+                });
+            }
+
+            render() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                this.ctx.save();
+                
+                this.ctx.translate(this.offsetX * this.scale, this.offsetY * this.scale);
+                this.ctx.scale(this.scale, this.scale);
+                
+                // Draw paths
+                this.ctx.strokeStyle = '#e2e8f0';
+                this.ctx.lineWidth = 4;
+                paths.forEach(([from, to]) => {
+                    const fromLoc = locations.find(l => l.id === from);
+                    const toLoc = locations.find(l => l.id === to);
+                    
+                    const fromCenterX = fromLoc.x + ROOM_WIDTH / 2;
+                    const fromCenterY = fromLoc.y + ROOM_HEIGHT / 2;
+                    const toCenterX = toLoc.x + ROOM_WIDTH / 2;
+                    const toCenterY = toLoc.y + ROOM_HEIGHT / 2;
+                    
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(fromCenterX, fromCenterY);
+                    this.ctx.lineTo(toCenterX, toCenterY);
+                    this.ctx.stroke();
+                });
+                
+                // Draw highlighted path
+                if (this.currentPath.length > 1) {
+                    this.ctx.strokeStyle = '#3b82f6';
+                    this.ctx.lineWidth = 6;
+                    this.ctx.beginPath();
+                    
+                    for (let i = 0; i < this.currentPath.length - 1; i++) {
+                        const current = locations.find(l => l.id === this.currentPath[i]);
+                        const next = locations.find(l => l.id === this.currentPath[i + 1]);
+                        
+                        const currentCenterX = current.x + ROOM_WIDTH / 2;
+                        const currentCenterY = current.y + ROOM_HEIGHT / 2;
+                        const nextCenterX = next.x + ROOM_WIDTH / 2;
+                        const nextCenterY = next.y + ROOM_HEIGHT / 2;
+                        
+                        if (i === 0) {
+                            this.ctx.moveTo(currentCenterX, currentCenterY);
+                        }
+                        this.ctx.lineTo(nextCenterX, nextCenterY);
+                    }
+                    this.ctx.stroke();
+                }
+                
+                // Draw rooms
+                locations.forEach(loc => {
+                    const isHighlighted = this.currentPath.includes(loc.id);
+                    this.drawRoom(loc.x, loc.y, loc.name, isHighlighted);
+                });
+                
+                this.ctx.restore();
+            }
+
+            setPath(path) {
+                this.currentPath = path;
+                this.render();
+            }
+
+            getTouchDistance(touches) {
+                return Math.hypot(
+                    touches[0].clientX - touches[1].clientX,
+                    touches[0].clientY - touches[1].clientY
+                );
+            }
+
+            handlePinchZoom(centerX, centerY, zoomFactor) {
+                const worldX = (centerX / this.scale) - this.offsetX;
+                const worldY = (centerY / this.scale) - this.offsetY;
+                
+                this.scale *= zoomFactor;
+                this.scale = Math.min(Math.max(0.5, this.scale), 3);
+                
+                this.offsetX = -(worldX * this.scale - centerX) / this.scale;
+                this.offsetY = -(worldY * this.scale - centerY) / this.scale;
+                
+                this.render();
+            }
+
+            // 새로운 메서드: 특정 지점을 중심으로 줌
+            zoomToPoint(screenX, screenY, zoomFactor) {
+                // 현재 마우스 위치의 월드 좌표 계산
+                const worldX = (screenX / this.scale) - this.offsetX;
+                const worldY = (screenY / this.scale) - this.offsetY;
+                
+                // 새로운 스케일 계산 및 제한
+                const newScale = Math.min(Math.max(0.5, this.scale * zoomFactor), 3);
+                
+                // 스케일 변화량 계산
+                const scaleDiff = newScale - this.scale;
+                
+                // 부드러운 전환을 위한 보간
+                this.scale = newScale;
+                
+                this.offsetX = -(worldX * this.scale - screenX) / this.scale;
+                this.offsetY = -(worldY * this.scale - screenY) / this.scale;
+                
+                this.render();
+            }
+        }
+
+        function createGraph() {
+            const graph = {};
+            locations.forEach(loc => {
+                graph[loc.id] = {};
+            });
+            
+            paths.forEach(([from, to]) => {
+                const fromLoc = locations.find(l => l.id === from);
+                const toLoc = locations.find(l => l.id === to);
+                const distance = Math.sqrt(
+                    Math.pow(fromLoc.x - toLoc.x, 2) + Math.pow(fromLoc.y - toLoc.y, 2)
+                );
+                graph[from][to] = distance;
+                graph[to][from] = distance;
+            });
+            
+            return graph;
+        }
+
+        function findShortestPath(graph, start, end) {
+            const distances = {};
+            const previous = {};
+            const nodes = new Set();
+            
+            Object.keys(graph).forEach(node => {
+                distances[node] = Infinity;
+                nodes.add(node);
+            });
+            distances[start] = 0;
+            
+            while (nodes.size > 0) {
+                let minNode = null;
+                for (let node of nodes) {
+                    if (!minNode || distances[node] < distances[minNode]) {
+                        minNode = node;
+                    }
+                }
+                
+                if (minNode === end) break;
+                
+                nodes.delete(minNode);
+                
+                for (let neighbor in graph[minNode]) {
+                    const distance = distances[minNode] + graph[minNode][neighbor];
+                    if (distance < distances[neighbor]) {
+                        distances[neighbor] = distance;
+                        previous[neighbor] = minNode;
+                    }
+                }
+            }
+            
+            const path = [];
+            let current = end;
+            
+            while (current !== undefined) {
+                path.unshift(current);
+                current = previous[current];
+            }
+            
+            return path;
+        }
+
+        function setupMap() {
+            const canvas = document.getElementById('mapCanvas');
+            const container = canvas.parentElement;
+            const startSelect = document.getElementById('start-location');
+            const endSelect = document.getElementById('end-location');
+            const findPathBtn = document.getElementById('find-path');
+            const zoomInBtn = document.getElementById('zoom-in');
+            const zoomOutBtn = document.getElementById('zoom-out');
+            const resetZoomBtn = document.getElementById('reset-zoom');
+            
+            function resizeCanvas() {
+                canvas.width = container.offsetWidth;
+                canvas.height = container.offsetHeight;
+            }
+            
+            resizeCanvas();
+            window.addEventListener('resize', () => {
+                resizeCanvas();
+                mapRenderer.render();
+            });
+            
+            const mapRenderer = new MapRenderer(canvas);
+            
+            locations.forEach(loc => {
+                const option1 = new Option(loc.name, loc.id);
+                const option2 = new Option(loc.name, loc.id);
+                startSelect.add(option1);
+                endSelect.add(option2);
+            });
+            
+            findPathBtn.addEventListener('click', () => {
+                const start = startSelect.value;
+                const end = endSelect.value;
+                
+                if (start && end && start !== end) {
+                    const graph = createGraph();
+                    const path = findShortestPath(graph, start, end);
+                    mapRenderer.setPath(path);
+                }
+            });
+            
+            zoomInBtn.addEventListener('click', () => mapRenderer.setZoom(true));
+            zoomOutBtn.addEventListener('click', () => mapRenderer.setZoom(false));
+            resetZoomBtn.addEventListener('click', () => mapRenderer.resetView());
+        }
+
+        window.addEventListener('load', setupMap);
+    </script>
 </body>
 </html>
