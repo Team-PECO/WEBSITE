@@ -7,8 +7,7 @@
    
    <!-- Three.js 라이브러리들을 먼저 로드 -->
    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/fflate.min.js"></script>
-   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/FBXLoader.js"></script>
+   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
    
    <style>
         body {
@@ -108,7 +107,7 @@
                const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
                const renderer = new THREE.WebGLRenderer({ antialias: true });
 
-               // 렌더러 크기 설정 함수
+               // 렌더러 크기 설정 함수 추가
                function updateRendererSize() {
                    const width = container.clientWidth;
                    const height = container.clientHeight;
@@ -117,54 +116,64 @@
                    camera.updateProjectionMatrix();
                }
 
-               updateRendererSize();
-               renderer.setClearColor(0xffffff);
+               // 렌더러 설정
+               renderer.setPixelRatio(window.devicePixelRatio);
+               renderer.shadowMap.enabled = true;
+               updateRendererSize();  // 이제 함수가 정의되어 있으므로 호출 가능
+               renderer.setClearColor(0xf5f5f5);
                container.appendChild(renderer.domElement);
 
-               // 조명 설정
-               const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+               // 조명 설정 수정
+               const ambientLight = new THREE.AmbientLight(0xffffff, 2.2);  // 강도 증가
                scene.add(ambientLight);
 
-               const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+               const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);  // 강도 증가
                directionalLight.position.set(5, 5, 5);
+               directionalLight.castShadow = true;
                scene.add(directionalLight);
 
-               const pointLight = new THREE.PointLight(0xffffff, 1, 100);
-               pointLight.position.set(10, 10, 10);
-               scene.add(pointLight);
+               // 카메라 위치 먼저 설정
+               camera.position.set(0, 15, 40);
+               camera.lookAt(0, 0, 0);
 
-               // FBX 로더
-               const loader = new THREE.FBXLoader();
+               // GLTFLoader
+               const loader = new THREE.GLTFLoader();
                let model;
-               loader.load('/static/assets/R2Bot.fbx', 
-                   (fbx) => {
+               loader.load('/static/assets/R2BOT.glb', 
+                   (gltf) => {
                        console.log("모델 로드 성공");
-                       model = fbx;
-                       model.scale.set(0.065, 0.065, 0.065);
-                       model.position.set(0, -10, 0);
-                       model.rotation.set(-90, 0, 0);
+                       model = gltf.scene;
                        
+                       // 모델 스케일과 위치 조정
+                       model.scale.set(2, 2, 2);  // 기본 스케일로 시작
+                       model.position.set(0, -.25, -1);  // 중앙에 위치
+                       
+                       // 그림자만 설정하고 재질은 원본 유지
                        model.traverse((child) => {
                            if (child.isMesh) {
                                child.castShadow = true;
                                child.receiveShadow = true;
-                               child.material = new THREE.MeshStandardMaterial({
-                                   metalness: 0.7,
-                                   roughness: 0.3,
-                                   color: 0xa1a1a1,
-                               });
                            }
                        });
 
                        scene.add(model);
-                       camera.position.set(0, 15, 40);
-                       camera.lookAt(0, 0, 0);
+                       
+                       // 모델이 로드된 후 적절한 크기로 조정
+                       const box = new THREE.Box3().setFromObject(model);
+                       const size = box.getSize(new THREE.Vector3());
+                       const scale = 20 / Math.max(size.x, size.y, size.z);
+                       model.scale.multiplyScalar(scale);
+                       
+                       // 모델을 바닥에 위치시키기
+                       const center = box.getCenter(new THREE.Vector3());
+                       model.position.sub(center.multiplyScalar(scale));
                    }, 
                    (xhr) => {
                        console.log((xhr.loaded / xhr.total * 100) + '% 로딩됨');
                    },
                    (error) => {
                        console.error("모델 로드 실패:", error);
+                       console.error(error.stack);  // 상세 에러 정보 출력
                    }
                );
 
@@ -202,8 +211,8 @@
                            z: currentPosition.z - previousMousePosition.z
 
                        };
-                       rotationSpeedZ += deltaMove.y * 0.01;
-                       rotationSpeedZ = Math.max(-maxRotationSpeed, Math.min(maxRotationSpeed, rotationSpeedZ));
+                       rotationSpeedY += deltaMove.x * 0.01;
+                       rotationSpeedY = Math.max(-maxRotationSpeed, Math.min(maxRotationSpeed, rotationSpeedY));
                        updateMousePosition(event);
                    }
                }
