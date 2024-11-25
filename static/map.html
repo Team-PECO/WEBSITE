@@ -123,10 +123,10 @@
     </div>
 
     <script>
-        const ROOM_WIDTH = 120;
+        const ROOM_WIDTH = 180;
         const ROOM_HEIGHT = 120;
-        const HORIZONTAL_GAP = 10;
-        const VERTICAL_GAP = 10;
+        const HORIZONTAL_GAP = 5;
+        const VERTICAL_GAP = 5;
 
         const floorData = {
             1: {
@@ -170,80 +170,74 @@
             },
             2: {
                 locations: [
-                    // 1층 데이터 (기존 데이터)
-                    { id: '창의디자인실', name: '창의디자인실', x: 0, y: 100 },
-                    { id: '과학실', name: '과학실', x: (ROOM_WIDTH + HORIZONTAL_GAP), y: 100 },
-                    { id: '프로그래밍2실', name: '프로그래밍2실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 2, y: 100 },
-                    { id: '인공지능개발실', name: '인공지능개발실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 3, y: 100 },
-                    { id: '학생자치회실', name: '학생자치회', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 4, y: 100 },
-                    { id: '학부모회실', name: '학부모회실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 5, y: 100 },
-                    { id: '보건실', name: '보건실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 6, y: 100 },
-                    { id: '중앙홀', name: '중앙홀', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 },
-                    { id: '기획회의실', name: '기획회의실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + ROOM_HEIGHT + VERTICAL_GAP },
-                    { id: '교장실', name: '교장실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 2 },
-                    { id: '행정지원실', name: '행정지원실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 3 },
-                    { id: '학습지원실', name: '학습지원실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 4 },
-                    { id: '1-1', name: '1-1', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 5 },
-                    { id: '1-2', name: '1-2', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 6 },
-                    { id: '1-3', name: '1-3', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 7 },
-                    { id: '1-4', name: '1-4', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 8 }
+                    // 2층 데이터 수정
+                    { id: '공간AriSori', name: '공간 AriSori', x: 0, y: 100 },
+                    { id: '진로상담실', name: '진로상담실', x: (ROOM_WIDTH + HORIZONTAL_GAP), y: 100 },
+                    { id: '학생지도실', name: '학생지도실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 2, y: 100 },
+                    { id: '전문교무실', name: '전문교무실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 3, y: 100 },
+                    { id: '전산관리실', name: '전산관리실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 4, y: 100 },
+                    { id: '프로그래밍실1', name: '프로그래밍실1', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 5, y: 100 },
+                    { id: '학습자료실', name: '학습자료실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 6, y: 100 },
+                    { id: '객체지향프로그래밍실', name: '객체지향프로그래밍실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100},
+                    { id: '위클래스실', name: '위클래스실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 8, y: 100},
+                    { id: '일반회의실', name: '일반회의실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 9, y: 100},
+                    { id: '여교사휴게실', name: '여교사휴게실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 9, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 1 },
+                    { id: 'SW카페', name: 'SW카페', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 9, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 2 },
+                    { id: '남교사휴게실', name: '남교사휴게실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 9, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 3 },
+                    { id: '일반교무실', name: '일반교무실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 9, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 4 },
+                    { id: '방송실', name: '방송실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 9, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 5 },
+                    { id: '2-1', name: '2-1', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 9, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 6 },
+                    { id: '2-2', name: '2-2', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 9, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 7 },
+                    { id: '2-3', name: '2-3', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 9, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 8 },
+                    { id: '2-4', name: '2-4', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 9, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 9 }
                 ],
                 paths: [
-                    // 1층 경로 (기존 경로)
-                    ['창의디자인실', '과학실'],
-                    ['과학실', '프로그래밍2실'],
-                    ['프로그래밍2실', '인공지능개발실'],
-                    ['인공지능개발실', '학생자치회실'],
-                    ['학생자치회실', '학부모회실'],
-                    ['학부모회실', '보건실'],
-                    ['보건실', '중앙홀'],
-                    ['중앙홀', '기획회의실'],
-                    ['기획회의실', '교장실'],
-                    ['교장실', '행정지원실'],
-                    ['행정지원실', '학습지원실'],
-                    ['학습지원실', '1-1'],
-                    ['1-1', '1-2'],
-                    ['1-2', '1-3'],
-                    ['1-3', '1-4']
+                    // 2층 경로 수정
+                    ['공간AriSori', '진로상담실'],
+                    ['진로상담실', '학생지도실'],
+                    ['학생지도실', '전문교무실'],
+                    ['전문교무실', '전산관리실'],
+                    ['전산관리실', '프로그래밍실1'],
+                    ['프로그래밍실1', '학습자료실'],
+                    ['학습자료실', '객체지향프로그래밍실'],
+                    ['객체지향프로그래밍실', '위클래스실'],
+                    ['위클래스실', '일반회의실'],
+                    ['일반회의실', '여교사휴게실'],
+                    ['여교사휴게실', 'SW카페'],
+                    ['SW카페', '남교사휴게실'],
+                    ['남교사휴게실', '일반교무실'],
+                    ['일반교무실', '방송실'],
+                    ['방송실', '2-1'],
+                    ['2-1', '2-2'],
+                    ['2-2', '2-3'],
+                    ['2-3', '2-4']
                 ]
             },
             3: {
                 locations: [
                     // 1층 데이터 (기존 데이터)
-                    { id: '창의디자인실', name: '창의디자인실', x: 0, y: 100 },
-                    { id: '과학실', name: '과학실', x: (ROOM_WIDTH + HORIZONTAL_GAP), y: 100 },
-                    { id: '프로그래밍2실', name: '프로그래밍2실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 2, y: 100 },
-                    { id: '인공지능개발실', name: '인공지능개발실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 3, y: 100 },
-                    { id: '학생자치회실', name: '학생자치회', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 4, y: 100 },
-                    { id: '학부모회실', name: '학부모회실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 5, y: 100 },
-                    { id: '보건실', name: '보건실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 6, y: 100 },
-                    { id: '중앙홀', name: '중앙홀', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 },
-                    { id: '기획회의실', name: '기획회의실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + ROOM_HEIGHT + VERTICAL_GAP },
-                    { id: '교장실', name: '교장실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 2 },
-                    { id: '행정지원실', name: '행정지원실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 3 },
-                    { id: '학습지원실', name: '학습지원실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 4 },
-                    { id: '1-1', name: '1-1', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 5 },
-                    { id: '1-2', name: '1-2', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 6 },
-                    { id: '1-3', name: '1-3', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 7 },
-                    { id: '1-4', name: '1-4', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 8 }
+                    { id: '창의공작실', name: '창의공작실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 2, y: 100 },
+                    { id: '모둠학습실', name: '모둠학습실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 2, y: 100 + ROOM_HEIGHT + VERTICAL_GAP },
+                    { id: '영어교과실', name: '영어교과실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 2, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 2 },
+                    { id: '기숙사운영부', name: '기숙사운영부', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 2, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 3 },
+                    { id: '3-4', name: '3-4', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 2, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 4 },
+                    { id: '3-3', name: '3-3', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 2, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 5 },
+                    { id: '3-2', name: '3-2', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 2, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 6 },
+                    { id: '3-1', name: '3-1', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 2, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 7 },
+                    { id: '학습지원실', name: '학습지원실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 2, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 8 },
+                    { id: '진로활동실', name: '진로활동실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 2, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 9 }
                 ],
                 paths: [
                     // 1층 경로 (기존 경로)
-                    ['창의디자인실', '과학실'],
-                    ['과학실', '프로그래밍2실'],
-                    ['프로그래밍2실', '인공지능개발실'],
-                    ['인공지능개발실', '학생자치회실'],
-                    ['학생자치회실', '학부모회실'],
-                    ['학부모회실', '보건실'],
-                    ['보건실', '중앙홀'],
-                    ['중앙홀', '기획회의실'],
-                    ['기획회의실', '교장실'],
-                    ['교장실', '행정지원실'],
-                    ['행정지원실', '학습지원실'],
-                    ['학습지원실', '1-1'],
-                    ['1-1', '1-2'],
-                    ['1-2', '1-3'],
-                    ['1-3', '1-4']
+                    ['학습지원실', '진로활동실'],
+                    ['3-1', '학습지원실'],
+                    ['3-1', '3-2'],
+                    ['3-2', '3-3'],
+                    ['3-3', '3-4'],
+                    ['3-4', '기숙사운영부'],
+                    ['기숙사운영부', '영어교과실'],
+                    ['영어교과실', '모둠학습실'],
+                    ['모둠학습실', '창의공작실'],
                 ]
             }
         };
