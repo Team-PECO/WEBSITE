@@ -42,12 +42,47 @@
         .zoom-btn:hover {
             background: #f1f5f9;
         }
+
+        .floor-controls {
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            z-index: 10;
+        }
+
+        .floor-btn {
+            width: 2.5rem;
+            height: 2.5rem;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .floor-btn.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #2563eb;
+        }
+
+        .floor-btn:hover:not(.active) {
+            background: #f1f5f9;
+        }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen">
     <div class="container mx-auto px-4 py-8">
         <h1 class="text-3xl md:text-4xl font-bold text-center text-slate-800 mb-8">
-            건물 길찾기
+            <a href="/">건물 길찾기</a>
         </h1>
         
         <div class="max-w-5xl mx-auto bg-white rounded-2xl shadow-lg p-6">
@@ -78,6 +113,11 @@
                     <button class="zoom-btn" id="zoom-out">-</button>
                     <button class="zoom-btn" id="reset-zoom">↺</button>
                 </div>
+                <div class="floor-controls">
+                    <button class="floor-btn active" data-floor="1">1F</button>
+                    <button class="floor-btn" data-floor="2">2F</button>
+                    <button class="floor-btn" data-floor="3">3F</button>
+                </div>
             </div>
         </div>
     </div>
@@ -88,50 +128,132 @@
         const HORIZONTAL_GAP = 10;
         const VERTICAL_GAP = 10;
 
-        const locations = [
-            // 가로 방향
-            { id: '창의디자인실', name: '창의디자인실', x: 0, y: 100 },
-            { id: '과학실', name: '과학실', x: (ROOM_WIDTH + HORIZONTAL_GAP), y: 100 },
-            { id: '프로그래밍2실', name: '프로그래밍2실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 2, y: 100 },
-            { id: '인공지능개발실', name: '인공지능개발실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 3, y: 100 },
-            { id: '학생자치회실', name: '학생자치회', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 4, y: 100 },
-            { id: '학부모회실', name: '학부모회실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 5, y: 100 },
-            { id: '보건실', name: '보건실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 6, y: 100 },
-            { id: '중앙홀', name: '중앙홀', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 },
-            
-            // 세로 방향
-            { id: '기획회의실', name: '기획회의실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + ROOM_HEIGHT + VERTICAL_GAP },
-            { id: '교장실', name: '교장실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 2 },
-            { id: '행정지원실', name: '행정지원실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 3 },
-            { id: '학습지원실', name: '학습지원실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 4 },
-            { id: '1-1', name: '1-1', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 5 },
-            { id: '1-2', name: '1-2', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 6 },
-            { id: '1-3', name: '1-3', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 7 },
-            { id: '1-4', name: '1-4', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 8 }
-        ];
+        const floorData = {
+            1: {
+                locations: [
+                    // 1층 데이터 (기존 데이터)
+                    { id: '창의디자인실', name: '창의디자인실', x: 0, y: 100 },
+                    { id: '과학실', name: '과학실', x: (ROOM_WIDTH + HORIZONTAL_GAP), y: 100 },
+                    { id: '프로그래밍2실', name: '프로그래밍2실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 2, y: 100 },
+                    { id: '인공지능개발실', name: '인공지능개발실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 3, y: 100 },
+                    { id: '학생자치회실', name: '학생자치회', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 4, y: 100 },
+                    { id: '학부모회실', name: '학부모회실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 5, y: 100 },
+                    { id: '보건실', name: '보건실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 6, y: 100 },
+                    { id: '중앙홀', name: '중앙홀', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 },
+                    { id: '기획회의실', name: '기획회의실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + ROOM_HEIGHT + VERTICAL_GAP },
+                    { id: '교장실', name: '교장실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 2 },
+                    { id: '행정지원실', name: '행정지원실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 3 },
+                    { id: '학습지원실', name: '학습지원실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 4 },
+                    { id: '1-1', name: '1-1', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 5 },
+                    { id: '1-2', name: '1-2', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 6 },
+                    { id: '1-3', name: '1-3', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 7 },
+                    { id: '1-4', name: '1-4', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 8 }
+                ],
+                paths: [
+                    // 1층 경로 (기존 경로)
+                    ['창의디자인실', '과학실'],
+                    ['과학실', '프로그래밍2실'],
+                    ['프로그래밍2실', '인공지능개발실'],
+                    ['인공지능개발실', '학생자치회실'],
+                    ['학생자치회실', '학부모회실'],
+                    ['학부모회실', '보건실'],
+                    ['보건실', '중앙홀'],
+                    ['중앙홀', '기획회의실'],
+                    ['기획회의실', '교장실'],
+                    ['교장실', '행정지원실'],
+                    ['행정지원실', '학습지원실'],
+                    ['학습지원실', '1-1'],
+                    ['1-1', '1-2'],
+                    ['1-2', '1-3'],
+                    ['1-3', '1-4']
+                ]
+            },
+            2: {
+                locations: [
+                    // 1층 데이터 (기존 데이터)
+                    { id: '창의디자인실', name: '창의디자인실', x: 0, y: 100 },
+                    { id: '과학실', name: '과학실', x: (ROOM_WIDTH + HORIZONTAL_GAP), y: 100 },
+                    { id: '프로그래밍2실', name: '프로그래밍2실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 2, y: 100 },
+                    { id: '인공지능개발실', name: '인공지능개발실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 3, y: 100 },
+                    { id: '학생자치회실', name: '학생자치회', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 4, y: 100 },
+                    { id: '학부모회실', name: '학부모회실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 5, y: 100 },
+                    { id: '보건실', name: '보건실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 6, y: 100 },
+                    { id: '중앙홀', name: '중앙홀', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 },
+                    { id: '기획회의실', name: '기획회의실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + ROOM_HEIGHT + VERTICAL_GAP },
+                    { id: '교장실', name: '교장실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 2 },
+                    { id: '행정지원실', name: '행정지원실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 3 },
+                    { id: '학습지원실', name: '학습지원실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 4 },
+                    { id: '1-1', name: '1-1', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 5 },
+                    { id: '1-2', name: '1-2', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 6 },
+                    { id: '1-3', name: '1-3', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 7 },
+                    { id: '1-4', name: '1-4', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 8 }
+                ],
+                paths: [
+                    // 1층 경로 (기존 경로)
+                    ['창의디자인실', '과학실'],
+                    ['과학실', '프로그래밍2실'],
+                    ['프로그래밍2실', '인공지능개발실'],
+                    ['인공지능개발실', '학생자치회실'],
+                    ['학생자치회실', '학부모회실'],
+                    ['학부모회실', '보건실'],
+                    ['보건실', '중앙홀'],
+                    ['중앙홀', '기획회의실'],
+                    ['기획회의실', '교장실'],
+                    ['교장실', '행정지원실'],
+                    ['행정지원실', '학습지원실'],
+                    ['학습지원실', '1-1'],
+                    ['1-1', '1-2'],
+                    ['1-2', '1-3'],
+                    ['1-3', '1-4']
+                ]
+            },
+            3: {
+                locations: [
+                    // 1층 데이터 (기존 데이터)
+                    { id: '창의디자인실', name: '창의디자인실', x: 0, y: 100 },
+                    { id: '과학실', name: '과학실', x: (ROOM_WIDTH + HORIZONTAL_GAP), y: 100 },
+                    { id: '프로그래밍2실', name: '프로그래밍2실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 2, y: 100 },
+                    { id: '인공지능개발실', name: '인공지능개발실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 3, y: 100 },
+                    { id: '학생자치회실', name: '학생자치회', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 4, y: 100 },
+                    { id: '학부모회실', name: '학부모회실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 5, y: 100 },
+                    { id: '보건실', name: '보건실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 6, y: 100 },
+                    { id: '중앙홀', name: '중앙홀', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 },
+                    { id: '기획회의실', name: '기획회의실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + ROOM_HEIGHT + VERTICAL_GAP },
+                    { id: '교장실', name: '교장실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 2 },
+                    { id: '행정지원실', name: '행정지원실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 3 },
+                    { id: '학습지원실', name: '학습지원실', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 4 },
+                    { id: '1-1', name: '1-1', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 5 },
+                    { id: '1-2', name: '1-2', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 6 },
+                    { id: '1-3', name: '1-3', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 7 },
+                    { id: '1-4', name: '1-4', x: (ROOM_WIDTH + HORIZONTAL_GAP) * 7, y: 100 + (ROOM_HEIGHT + VERTICAL_GAP) * 8 }
+                ],
+                paths: [
+                    // 1층 경로 (기존 경로)
+                    ['창의디자인실', '과학실'],
+                    ['과학실', '프로그래밍2실'],
+                    ['프로그래밍2실', '인공지능개발실'],
+                    ['인공지능개발실', '학생자치회실'],
+                    ['학생자치회실', '학부모회실'],
+                    ['학부모회실', '보건실'],
+                    ['보건실', '중앙홀'],
+                    ['중앙홀', '기획회의실'],
+                    ['기획회의실', '교장실'],
+                    ['교장실', '행정지원실'],
+                    ['행정지원실', '학습지원실'],
+                    ['학습지원실', '1-1'],
+                    ['1-1', '1-2'],
+                    ['1-2', '1-3'],
+                    ['1-3', '1-4']
+                ]
+            }
+        };
 
-        const paths = [
-            // 가로 방향 연결
-            ['창의디자인실', '과학실'],
-            ['과학실', '프로그래밍2실'],
-            ['프로그래밍2실', '인공지능개발실'],
-            ['인공지능개발실', '학생자치회실'],
-            ['학생자치회실', '학부모회실'],
-            ['학부모회실', '보건실'],
-            ['보건실', '중앙홀'],
-            
-            // 세로 방향 연결
-            ['중앙홀', '기획회의실'],
-            ['기획회의실', '교장실'],
-            ['교장실', '행정지원실'],
-            ['행정지원실', '학습지원실'],
-            ['학습지원실', '1-1'],
-            ['1-1', '1-2'],
-            ['1-2', '1-3'],
-            ['1-3', '1-4']
-        ];
+        let currentFloor = 1;
+        let locations = floorData[currentFloor].locations;
+        let paths = floorData[currentFloor].paths;
 
         class MapRenderer {
+            // ... (이전 MapRenderer 클래스 코드는 그대로 유지)
             constructor(canvas) {
                 this.canvas = canvas;
                 this.ctx = canvas.getContext('2d');
@@ -157,7 +279,6 @@
                 this.canvas.addEventListener('touchstart', (e) => {
                     e.preventDefault();
                     if (e.touches.length === 2) {
-                        // Store initial pinch distance
                         this.lastTouchDistance = this.getTouchDistance(e.touches);
                     } else if (e.touches.length === 1) {
                         const touch = e.touches[0];
@@ -168,7 +289,6 @@
                 this.canvas.addEventListener('touchmove', (e) => {
                     e.preventDefault();
                     if (e.touches.length === 2) {
-                        // Handle pinch zoom
                         const currentDistance = this.getTouchDistance(e.touches);
                         const delta = currentDistance - this.lastTouchDistance;
                         
@@ -229,7 +349,6 @@
                 const mouseX = e.clientX - rect.left;
                 const mouseY = e.clientY - rect.top;
                 
-                // 줌 속도 조절
                 const zoomSensitivity = 0.001;
                 const zoomFactor = 1 + (-e.deltaY * zoomSensitivity);
                 
@@ -240,7 +359,6 @@
                 const centerX = this.canvas.width / 2;
                 const centerY = this.canvas.height / 2;
                 
-                // 고정된 줌 비율 사용
                 const zoomFactor = zoomIn ? 1.1 : 0.9;
                 
                 this.zoomToPoint(centerX, centerY, zoomFactor);
@@ -284,13 +402,11 @@
                 this.ctx.fill();
                 this.ctx.stroke();
 
-                // Draw room name
                 this.ctx.fillStyle = '#1e293b';
                 this.ctx.font = 'bold 24px system-ui';
                 this.ctx.textAlign = 'center';
                 this.ctx.textBaseline = 'middle';
                 
-                // Text wrapping for long names
                 const words = name.split('');
                 let line = '';
                 let lines = [];
@@ -325,7 +441,6 @@
                 this.ctx.translate(this.offsetX * this.scale, this.offsetY * this.scale);
                 this.ctx.scale(this.scale, this.scale);
                 
-                // Draw paths
                 this.ctx.strokeStyle = '#e2e8f0';
                 this.ctx.lineWidth = 4;
                 paths.forEach(([from, to]) => {
@@ -343,7 +458,6 @@
                     this.ctx.stroke();
                 });
                 
-                // Draw highlighted path
                 if (this.currentPath.length > 1) {
                     this.ctx.strokeStyle = '#3b82f6';
                     this.ctx.lineWidth = 6;
@@ -366,7 +480,6 @@
                     this.ctx.stroke();
                 }
                 
-                // Draw rooms
                 locations.forEach(loc => {
                     const isHighlighted = this.currentPath.includes(loc.id);
                     this.drawRoom(loc.x, loc.y, loc.name, isHighlighted);
@@ -400,19 +513,14 @@
                 this.render();
             }
 
-            // 새로운 메서드: 특정 지점을 중심으로 줌
             zoomToPoint(screenX, screenY, zoomFactor) {
-                // 현재 마우스 위치의 월드 좌표 계산
                 const worldX = (screenX / this.scale) - this.offsetX;
                 const worldY = (screenY / this.scale) - this.offsetY;
                 
-                // 새로운 스케일 계산 및 제한
                 const newScale = Math.min(Math.max(0.5, this.scale * zoomFactor), 3);
                 
-                // 스케일 변화량 계산
                 const scaleDiff = newScale - this.scale;
                 
-                // 부드러운 전환을 위한 보간
                 this.scale = newScale;
                 
                 this.offsetX = -(worldX * this.scale - screenX) / this.scale;
@@ -484,6 +592,35 @@
             return path;
         }
 
+        function updateLocationSelects() {
+            const startSelect = document.getElementById('start-location');
+            const endSelect = document.getElementById('end-location');
+            
+            // 현재 선택된 값 저장
+            const startValue = startSelect.value;
+            const endValue = endSelect.value;
+            
+            // 옵션 초기화
+            startSelect.innerHTML = '';
+            endSelect.innerHTML = '';
+            
+            // 새로운 옵션 추가
+            locations.forEach(loc => {
+                const option1 = new Option(loc.name, loc.id);
+                const option2 = new Option(loc.name, loc.id);
+                startSelect.add(option1);
+                endSelect.add(option2);
+            });
+            
+            // 이전 선택값 복원 (해당 층에 존재하는 경우에만)
+            if (locations.some(loc => loc.id === startValue)) {
+                startSelect.value = startValue;
+            }
+            if (locations.some(loc => loc.id === endValue)) {
+                endSelect.value = endValue;
+            }
+        }
+
         function setupMap() {
             const canvas = document.getElementById('mapCanvas');
             const container = canvas.parentElement;
@@ -493,6 +630,7 @@
             const zoomInBtn = document.getElementById('zoom-in');
             const zoomOutBtn = document.getElementById('zoom-out');
             const resetZoomBtn = document.getElementById('reset-zoom');
+            const floorBtns = document.querySelectorAll('.floor-btn');
             
             function resizeCanvas() {
                 canvas.width = container.offsetWidth;
@@ -507,12 +645,8 @@
             
             const mapRenderer = new MapRenderer(canvas);
             
-            locations.forEach(loc => {
-                const option1 = new Option(loc.name, loc.id);
-                const option2 = new Option(loc.name, loc.id);
-                startSelect.add(option1);
-                endSelect.add(option2);
-            });
+            // 초기 위치 옵션 설정
+            updateLocationSelects();
             
             findPathBtn.addEventListener('click', () => {
                 const start = startSelect.value;
@@ -528,6 +662,28 @@
             zoomInBtn.addEventListener('click', () => mapRenderer.setZoom(true));
             zoomOutBtn.addEventListener('click', () => mapRenderer.setZoom(false));
             resetZoomBtn.addEventListener('click', () => mapRenderer.resetView());
+
+            // 층 변경 버튼 이벤트 처리
+            floorBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // 현재 활성화된 버튼에서 active 클래스 제거
+                    document.querySelector('.floor-btn.active').classList.remove('active');
+                    // 클릭된 버튼에 active 클래스 추가
+                    btn.classList.add('active');
+                    
+                    // 층 데이터 업데이트
+                    currentFloor = parseInt(btn.dataset.floor);
+                    locations = floorData[currentFloor].locations;
+                    paths = floorData[currentFloor].paths;
+                    
+                    // 위치 선택 옵션 업데이트
+                    updateLocationSelects();
+                    
+                    // 경로 초기화 및 뷰 리셋
+                    mapRenderer.setPath([]);
+                    mapRenderer.resetView();
+                });
+            });
         }
 
         window.addEventListener('load', setupMap);
