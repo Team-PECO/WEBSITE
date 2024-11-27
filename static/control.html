@@ -46,23 +46,30 @@
         }
         .controls {
             display: grid;
-            gap:-10px;
+            gap: 10px;
             grid-template-columns: repeat(3, 1fr);
             margin-bottom: 20px;
         }
         button {
-            background-color: hsl(212, 72%, 59%);
+            background-color: #3498db;
             color: white;
             border: none;
-            padding:40px;
-            border-radius: 100px;
-            font-size: 18px;
+            padding: 30px;
+            aspect-ratio: 1;
+            border-radius: 15px;
+            font-size: 24px;
             cursor: pointer;
-            transition: background-color 0.3s;
-            box-shadow: 0 0px 6px rgba(22, 34, 132, 0.4);
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         button:hover {
-            background-color: #1b5084;
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        button:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         .up { grid-column: 2; }
         .left { grid-column: 1; grid-row: 2; }
@@ -72,6 +79,35 @@
             width: 100%;
             box-shadow: 0 0px 0px rgba(22, 34, 132, 0.4);
             padding: 20px;
+        }
+        .stop {
+            grid-column: 2;
+            grid-row: 2;
+            background-color: #e74c3c;
+            font-size: 20px;
+        }
+        .stop:hover {
+            background-color: #c0392b;
+        }
+        .speed-control {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            gap: 15px;
+        }
+        .speed-button {
+            padding: 25px;
+            aspect-ratio: 1;
+            font-size: 20px;
+            border-radius: 10px;
+        }
+        .speed-value {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            flex: 1;
+            color: #2c3e50;
         }
     </style>
 </head>
@@ -83,13 +119,20 @@
         <div class="controls">
             <button class="up" onclick="moveRobot('up')">↑</button>
             <button class="left" onclick="moveRobot('left')">←</button>
+            <button class="stop" onclick="moveRobot('stop')">■</button>
             <button class="right" onclick="moveRobot('right')">→</button>
             <button class="down" onclick="moveRobot('down')">↓</button>
         </div>
-        <button class="map-button" onclick="startMapping()">맵핑 시작</button>
+        <div class="speed-control">
+            <button class="speed-button" onclick="adjustSpeed('down')">-</button>
+            <div class="speed-value" id="speedValue">50</div>
+            <button class="speed-button" onclick="adjustSpeed('up')">+</button>
+        </div>
     </div>
 
     <script>
+        let currentSpeed = 50;
+
         async function moveRobot(direction) {
             try {
                 const response = await fetch(`/${direction}`);
@@ -104,6 +147,24 @@
         async function startMapping() {
             try {
                 const response = await fetch('/mapping');
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const data = await response.json();
+                console.log(data);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function adjustSpeed(direction) {
+            if (direction === 'up' && currentSpeed < 80) {
+                currentSpeed += 10;
+            } else if (direction === 'down' && currentSpeed > 20) {
+                currentSpeed -= 10;
+            }
+            document.getElementById('speedValue').textContent = currentSpeed;
+            
+            try {
+                const response = await fetch(`/speed/${currentSpeed}`);
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 const data = await response.json();
                 console.log(data);

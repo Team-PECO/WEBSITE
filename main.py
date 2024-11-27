@@ -4,12 +4,12 @@ from fastapi.staticfiles import StaticFiles
 import paho.mqtt.client as mqtt
 import time
 import asyncio
-# import paho.mqtt.client as mqtt
+import paho.mqtt.client as mqtt
 import time  # 메시지 전송 간격을 위해 추가
 import atexit
 # Broker address
-broker_address = "10.150.151.204"
-# client1 = mqtt.Client("python_pub_1")  # 발행자 역할을 반영하도록 이름 변경
+broker_address = "10.150.150.177"
+client1 = mqtt.Client("python_pub_1")  # 발행자 역할을 반영하도록 이름 변경
 
 app = FastAPI()
 
@@ -17,27 +17,27 @@ app = FastAPI()
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code " + str(rc))
 
-# client1.on_connect = on_connect
+client1.on_connect = on_connect
 
 # # Connect to broker
-# client1.connect(broker_address, 1883)
-# client1.loop_start()  # 백그라운드에서 네트워크 루프 시작
+client1.connect(broker_address, 1883)
+client1.loop_start()  # 백그라운드에서 네트워크 루프 시작
 
 # 메시지 발행 루프
 def send_direction(direction):
-    # client1.publish("jetson/jetson", direction)
+    client1.publish("jetson/jetson", direction)
     print(f"Published: {direction}")
 
 
 def handle_exit():
     print("발행자 종료")
-    # client1.loop_stop()
-    # client1.disconnect()
+    client1.loop_stop()
+    client1.disconnect()
 
 @app.get("/aaaaa")
 def pub(topic_str="jetson/jetson", message_str="hello world"):
     mqttc = mqtt.Client("python_pub") # puclisher 이름
-    mqttc.connect("10.150.151.204", 1883)
+    mqttc.connect("10.150.150.177", 1883)
     mqttc.publish("jetson/jetson", message_str) # topic, messageimport paho.mqtt.client as mqtt
     pass
 
@@ -47,6 +47,11 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 @app.get("/")
 async def read_root():
     return FileResponse("static/index.html")
+
+@app.get("/stop")
+async def read_control():
+    print("멈춰!!!!!!!!!!!!!!!!!1")
+    return "스탑이요"
 
 @app.get("/control")
 async def read_control():
@@ -84,6 +89,11 @@ async def left():
 async def mapping():
     print("5")
     return JSONResponse(content={"message": "mapping"})
+
+@app.get("/speed/{speed_value}")
+async def set_speed(speed_value: int):
+    print(f"Speed set to: {speed_value}")
+    return "스피드는 " + f"{speed_value}" + "이에오"
 
 atexit.register(handle_exit) 
 
