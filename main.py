@@ -8,7 +8,7 @@ import paho.mqtt.client as mqtt
 import time  # 메시지 전송 간격을 위해 추가
 import atexit
 # Broker address
-broker_address = "10.150.150.177"
+broker_address = "10.150.150.54"
 client1 = mqtt.Client("python_pub_1")  # 발행자 역할을 반영하도록 이름 변경
 
 app = FastAPI()
@@ -53,7 +53,7 @@ def handle_exit():
 def pub(topic_str="jetson/jetson", message_str="hello world"):
     mqttc = mqtt.Client("python_pub")
     try:
-        mqttc.connect("10.150.150.177", 1883)
+        mqttc.connect("10.150.150.54", 1883)
         mqttc.publish(topic_str, message_str)  # 하드코딩된 값 대신 매개변수 사용
     finally:
         mqttc.disconnect()  # 연결 종료
